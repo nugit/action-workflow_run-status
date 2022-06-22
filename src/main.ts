@@ -67,6 +67,7 @@ async function postStatus(isCleanUp: boolean): Promise<void> {
     )
   }
   const token = core.getInput('github_token')
+  const jobId = core.getInput('job_id')
   const octokit = github.getOctokit(token)
   if (isCleanUp) {
     core.info(
@@ -81,9 +82,9 @@ async function postStatus(isCleanUp: boolean): Promise<void> {
     filter: 'latest',
     per_page: 100
   })
-  const job = jobs.data.jobs.find(j => j.name === context.job)
+  const job = jobs.data.jobs.find(j => j.name === jobId)
   if (!job) {
-    throw new Error(`job not found: ${context.job}`)
+    throw new Error(`job not found: ${jobId}`)
   }
   const state =
     context.payload.action === 'requested' && requestedAsPending()
@@ -94,7 +95,7 @@ async function postStatus(isCleanUp: boolean): Promise<void> {
     repo: context.repo.repo,
     sha: context.payload.workflow_run.head_commit.id,
     state,
-    context: `${context.workflow} / ${context.job} (${context.payload.workflow_run.event} => ${context.eventName})`,
+    context: `${context.workflow} / ${jobId} (${context.payload.workflow_run.event} => ${context.eventName})`,
     target_url: job.html_url
   })
   core.debug(JSON.stringify(resp, null, 2))
