@@ -61,6 +61,13 @@ function job2status(
 
 async function postStatus(isCleanUp: boolean): Promise<void> {
   const context = github.context
+
+  if (core.isDebug()) {
+    core.startGroup('github.context:')
+    core.debug(JSON.stringify(context, null, 2))
+    core.endGroup()
+  }
+
   if (context.eventName !== 'workflow_run') {
     throw new Error(
       `This is not workflow_run event: eventName=${context.eventName}`
@@ -82,6 +89,13 @@ async function postStatus(isCleanUp: boolean): Promise<void> {
     filter: 'latest',
     per_page: 100
   })
+
+  if (core.isDebug()) {
+    core.startGroup('jobs:')
+    core.debug(JSON.stringify(jobs, null, 2))
+    core.endGroup()
+  }
+
   const job = jobs.data.jobs.find(j => j.name === jobId)
   if (!job) {
     throw new Error(`job not found: ${jobId}`)

@@ -596,6 +596,11 @@ function job2status(job, isCleanUp) {
 function postStatus(isCleanUp) {
     return __awaiter(this, void 0, void 0, function* () {
         const context = github.context;
+        if (core.isDebug()) {
+            core.startGroup('github.context:');
+            core.debug(JSON.stringify(context, null, 2));
+            core.endGroup();
+        }
         if (context.eventName !== 'workflow_run') {
             throw new Error(`This is not workflow_run event: eventName=${context.eventName}`);
         }
@@ -613,6 +618,11 @@ function postStatus(isCleanUp) {
             filter: 'latest',
             per_page: 100
         });
+        if (core.isDebug()) {
+            core.startGroup('jobs:');
+            core.debug(JSON.stringify(jobs, null, 2));
+            core.endGroup();
+        }
         const job = jobs.data.jobs.find(j => j.name === jobId);
         if (!job) {
             throw new Error(`job not found: ${jobId}`);
